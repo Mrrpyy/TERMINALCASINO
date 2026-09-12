@@ -9,6 +9,7 @@ import re
 from casino.types import GameContext
 from casino.utils import clear_screen, cprint, cinput, display_topbar
 from casino.accounts import Account
+from casino.stats import GameStats, display_stats
 
 ROULETTE_HEADER = """
 ┌─────────────────────────────┐
@@ -480,6 +481,7 @@ def play_roulette(context: GameContext) -> None:
                          f"accounts is a {type(accounts)}")
 
     roulette = AmericanRoulette(accounts)
+    stats = GameStats("American Roulette", accounts[0].balance)
     while continue_game:
         roulette.reset_round()
         clear_screen()
