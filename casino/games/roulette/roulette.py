@@ -493,6 +493,7 @@ def play_roulette(context: GameContext) -> None:
         if choice.lower() in {"q", "quit"}:
             continue_game = False
             break
+        round_start_balance = accounts[0].balance
 
         status = roulette.submit_bets(context)
         if status == "BANKRUPT":
@@ -500,6 +501,18 @@ def play_roulette(context: GameContext) -> None:
 
         roulette.spin_wheel(context)
         roulette.payout()
+
+        round_end_balance = accounts[0].balance
+
+        stats.rounds_played += 1
+
+        if round_end_balance > round_start_balance:
+            stats.wins += 1
+        elif round_end_balance < round_start_balance:
+            stats.losses += 1
+        else:
+            stats.pushes += 1
+
         refresh_roulette_topbar(context)
 
         play_again = None
