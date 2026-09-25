@@ -532,5 +532,10 @@ def play_roulette(context: GameContext) -> None:
                 continue_game = True
                 break
 
+    stats.ending_balance = accounts[0].balance
+    display_stats(stats)
+
+
+
     #cprint("Exiting roulette...")
     #sleep(0.5)
