@@ -481,7 +481,7 @@ def play_roulette(context: GameContext) -> None:
                          f"accounts is a {type(accounts)}")
 
     roulette = AmericanRoulette(accounts)
-    stats = GameStats("American Roulette", accounts[0].balance)
+    stats = GameStats("American Roulette", accounts[0].balance, round_label="Spins")
     while continue_game:
         roulette.reset_round()
         clear_screen()
