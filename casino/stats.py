@@ -7,6 +7,7 @@ from .utils import cprint, cinput, clear_screen
 class GameStats:
     game_name: str
     starting_balance: int
+#lets each game choose the name used for its rounds while keeping hands as the default
     round_label: str = "Hands"
     ending_balance: int = 0
     rounds_played: int = 0
@@ -34,6 +35,7 @@ def display_stats(stats: GameStats) -> None:
 
     rows = [
         ("Game", stats.game_name),
+#uses games round label so roulette displays spins played instead of hands played
         (f"{stats.round_label} Played", str(stats.rounds_played)),
         ("Wins", str(stats.wins)),
         ("Losses", str(stats.losses)),
