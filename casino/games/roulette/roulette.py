@@ -9,7 +9,8 @@ import re
 from casino.types import GameContext
 from casino.utils import clear_screen, cprint, cinput, display_topbar
 from casino.accounts import Account
-from casino.stats import display_stats, GameStats
+#imports shared stats tool so roulette can track and display session stats
+from casino.stats import GameStats, display_stats
 
 ROULETTE_HEADER = """
 ┌─────────────────────────────┐
@@ -481,7 +482,8 @@ def play_roulette(context: GameContext) -> None:
                          f"accounts is a {type(accounts)}")
 
     roulette = AmericanRoulette(accounts)
-    stats = GameStats("American Roulette", context.account.balance)
+#one stats object for the entire roulette session and records the starting balance
+    stats = GameStats("American Roulette", accounts[0].balance, round_label="Spins")
     while continue_game:
         roulette.reset_round()
         clear_screen()
@@ -493,19 +495,29 @@ def play_roulette(context: GameContext) -> None:
         if choice.lower() in {"q", "quit"}:
             continue_game = False
             break
-        prev_balance = context.account.balance
+#saves the balance before the bet is withdrawn so the full result of the spin can be measured
+        round_start_balance = accounts[0].balance
+
         status = roulette.submit_bets(context)
         if status == "BANKRUPT":
             break
 
         roulette.spin_wheel(context)
         roulette.payout()
-        if context.account.balance > prev_balance:
+#saves balance after the wheel has spun and all winnings have been paid
+        round_end_balance = accounts[0].balance
+#counts completed spin as one round played
+        stats.rounds_played += 1
+#records win when the player ends the spin with more money than they started with
+        if round_end_balance > round_start_balance:
             stats.wins += 1
-            stats.rounds_played += 1
-        elif context.account.balance < prev_balance:
+#records loss when the player ends the spin with less money than they started with
+        elif round_end_balance < round_start_balance:
             stats.losses += 1
-            stats.rounds_played += 1
+#records push when the player's balance does not change after the spin
+        else:
+            stats.pushes += 1
+
         refresh_roulette_topbar(context)
 
         play_again = None
@@ -524,7 +536,11 @@ def play_roulette(context: GameContext) -> None:
             elif play_again == "" or play_again.lower() in {"y", "yes"}:
                 continue_game = True
                 break
-    stats.ending_balance = context.account.balance
+#records  players final balance after roulette session ends
+    stats.ending_balance = accounts[0].balance
     display_stats(stats)
+
+
+
     #cprint("Exiting roulette...")
     #sleep(0.5)
